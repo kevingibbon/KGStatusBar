@@ -15,35 +15,26 @@
 - (IBAction)statusButtonPressed:(id)sender;
 - (IBAction)dismissButtonPressed:(id)sender;
 
-
 @end
 
 @implementation KGViewController
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-}
+- (void)viewDidLoad{[super viewDidLoad];}
+- (void)didReceiveMemoryWarning{[super didReceiveMemoryWarning];}
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 - (IBAction)successButtonPressed:(id)sender {
+    //Temporary message : only shows for few seconds.
     [KGStatusBar showSuccessWithStatus:@"Successfully synced"];
 }
-
 - (IBAction)errorButtonPressed:(id)sender {
+    //Temporary message too
     [KGStatusBar showErrorWithStatus:@"Error syncing files"];
 }
-
 - (IBAction)statusButtonPressed:(id)sender {
+    //A persistent message : will not dismiss until -(IBAction)dismissButtonPressed:(id)sender is called.
     [KGStatusBar showWithStatus:@"Loading..."];
 }
-
 - (IBAction)dismissButtonPressed:(id)sender {
     [KGStatusBar dismiss];
 }

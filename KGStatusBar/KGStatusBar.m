@@ -65,6 +65,7 @@
     CGRect labelRect = CGRectZero;
     CGFloat stringWidth = 0;
     CGFloat stringHeight = 0;
+
     if(labelText) {
         CGSize stringSize = [labelText sizeWithFont:self.stringLabel.font constrainedToSize:CGSizeMake(self.topBar.frame.size.width, self.topBar.frame.size.height)];
         stringWidth = stringSize.width;
@@ -72,13 +73,14 @@
         
         labelRect = CGRectMake((self.topBar.frame.size.width / 2) - (stringWidth / 2), 0, stringWidth, stringHeight);
     }
-    self.stringLabel.frame = labelRect;
+    [self.stringLabel setFrame:CGRectMake(labelRect.origin.x, labelRect.origin.y + 7, labelRect.size.width, labelRect.size.height)];
     self.stringLabel.alpha = 0.0;
     self.stringLabel.hidden = NO;
     self.stringLabel.text = labelText;
     self.stringLabel.textColor = textColor;
     [UIView animateWithDuration:0.4 animations:^{
         self.stringLabel.alpha = 1.0;
+        self.stringLabel.frame = CGRectMake(self.stringLabel.frame.origin.x, self.stringLabel.frame.origin.y - 7, labelRect.size.width, labelRect.size.height);
     }];
     [self setNeedsDisplay];
 }
@@ -87,12 +89,14 @@
 {
     [UIView animateWithDuration:0.4 animations:^{
         self.stringLabel.alpha = 0.0;
+        self.stringLabel.frame = CGRectMake(self.stringLabel.frame.origin.x, self.stringLabel.frame.origin.y + 7, self.stringLabel.frame.size.width, self.stringLabel.frame.size.height);
     } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.3 animations:^{topBar.alpha = 0;} completion:^(BOOL finishedd) {
         [topBar removeFromSuperview];
         topBar = nil;
-        
         [overlayWindow removeFromSuperview];
         overlayWindow = nil;
+        }];
     }];
 }
 
