@@ -33,15 +33,15 @@
 }
 
 - (IBAction)successButtonPressed:(id)sender {
-    [KGStatusBar showSuccessWithStatus:@"Successfully synced"];
+    [KGStatusBar showSuccessWithStatus:@"Successfully synced" showSpinner:NO];
 }
 
 - (IBAction)errorButtonPressed:(id)sender {
-    [KGStatusBar showErrorWithStatus:@"Error syncing files"];
+    [KGStatusBar showErrorWithStatus:@"Error syncing files" showSpinner:NO];
 }
 
 - (IBAction)statusButtonPressed:(id)sender {
-    [KGStatusBar showWithStatus:@"Loading..."];
+    [KGStatusBar showWithStatus:@"Loading..." showSpinner:YES];
 }
 
 - (IBAction)dismissButtonPressed:(id)sender {
