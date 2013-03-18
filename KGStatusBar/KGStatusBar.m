@@ -8,6 +8,9 @@
 
 #import "KGStatusBar.h"
 
+#define TOP_BAR_DISAPPEARING_ANIMATION_DURATION 0.15
+#define STATUS_BAR_APPEARING_ANIMATION_DURATION 0.15
+
 @interface KGStatusBar ()
     @property (nonatomic, strong, readonly) UIWindow *overlayWindow;
     @property (nonatomic, strong, readonly) UIView *topBar;
@@ -85,14 +88,19 @@
 
 - (void) dismiss
 {
-    [UIView animateWithDuration:0.4 animations:^{
+    [UIView animateWithDuration:TOP_BAR_DISAPPEARING_ANIMATION_DURATION animations:^{
         self.stringLabel.alpha = 0.0;
     } completion:^(BOOL finished) {
-        [topBar removeFromSuperview];
-        topBar = nil;
         
-        [overlayWindow removeFromSuperview];
-        overlayWindow = nil;
+        [UIView animateWithDuration:STATUS_BAR_APPEARING_ANIMATION_DURATION animations:^{
+            self.overlayWindow.alpha = 0.0;
+        } completion:^(BOOL finished) {
+            [topBar removeFromSuperview];
+            topBar = nil;
+            
+            [overlayWindow removeFromSuperview];
+            overlayWindow = nil;
+        }];
     }];
 }
 
