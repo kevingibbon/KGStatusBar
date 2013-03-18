@@ -8,18 +8,9 @@
 
 #import "KGStatusBar.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 #define TOP_BAR_DISAPPEARING_ANIMATION_DURATION 0.15
 #define STATUS_BAR_APPEARING_ANIMATION_DURATION 0.15
-=======
-#define TOP_BAR_DISAPPERING_ANIMATION_DURATION 0.15
-#define STATUS_BAR_APPERING_ANIMATION_DURATION 0.15
->>>>>>> Animation Fix to be more like Mailbox App
-=======
-#define TOP_BAR_DISAPPEARING_ANIMATION_DURATION 0.15
-#define STATUS_BAR_APPEARING_ANIMATION_DURATION 0.15
->>>>>>> Typo Fix
+
 
 @interface KGStatusBar ()
 @property (nonatomic, strong, readonly) UIWindow *overlayWindow;
@@ -98,7 +89,7 @@
     
     [UIView animateWithDuration:0.4 animations:^{
         self.stringLabel.alpha = 1.0;
-        if (self.showActivityIndicatorView) {
+        if (self.shouldShowActivityIndicatorView) {
         self.activityIndicatorView.alpha = 1.0;
         }
     }];
@@ -107,21 +98,7 @@
 
 - (void) dismiss
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-    [UIView animateWithDuration:TOP_BAR_DISAPPEARING_ANIMATION_DURATION animations:^{
-        self.stringLabel.alpha = 0.0;
-    } completion:^(BOOL finished) {
-        
-        [UIView animateWithDuration:STATUS_BAR_APPEARING_ANIMATION_DURATION animations:^{
-=======
-    [UIView animateWithDuration:TOP_BAR_DISAPPERING_ANIMATION_DURATION animations:^{
-        self.stringLabel.alpha = 0.0;
-    } completion:^(BOOL finished) {
-        
-        [UIView animateWithDuration:STATUS_BAR_APPERING_ANIMATION_DURATION animations:^{
->>>>>>> Animation Fix to be more like Mailbox App
-=======
+
     [UIView animateWithDuration:TOP_BAR_DISAPPEARING_ANIMATION_DURATION animations:^{
         self.stringLabel.alpha = 0.0;
         
@@ -130,7 +107,7 @@
     } completion:^(BOOL finished) {
         
         [UIView animateWithDuration:STATUS_BAR_APPEARING_ANIMATION_DURATION animations:^{
->>>>>>> Typo Fix
+
             self.overlayWindow.alpha = 0.0;
         } completion:^(BOOL finished) {
             [topBar removeFromSuperview];
