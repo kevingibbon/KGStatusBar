@@ -22,14 +22,16 @@
 >>>>>>> Typo Fix
 
 @interface KGStatusBar ()
-    @property (nonatomic, strong, readonly) UIWindow *overlayWindow;
-    @property (nonatomic, strong, readonly) UIView *topBar;
-    @property (nonatomic, strong) UILabel *stringLabel;
+@property (nonatomic, strong, readonly) UIWindow *overlayWindow;
+@property (nonatomic, strong, readonly) UIView *topBar;
+@property (nonatomic, strong) UILabel *stringLabel;
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
+@property (nonatomic, assign, getter = shouldShowActivityIndicatorView) BOOL showActivityIndicatorView;
 @end
 
 @implementation KGStatusBar
 
-@synthesize topBar, overlayWindow, stringLabel;
+@synthesize topBar, overlayWindow, stringLabel, activityIndicatorView, showActivityIndicatorView;
 
 + (KGStatusBar*)sharedView {
     static dispatch_once_t once;
@@ -38,18 +40,17 @@
     return sharedView;
 }
 
-+ (void)showSuccessWithStatus:(NSString*)status
-{
-    [KGStatusBar showWithStatus:status];
++ (void)showSuccessWithStatus:(NSString*)status showSpinner:(BOOL)shouldShowSpinner{
+    [KGStatusBar showWithStatus:status showSpinner:shouldShowSpinner];
     [KGStatusBar performSelector:@selector(dismiss) withObject:self afterDelay:2.0 ];
 }
 
-+ (void)showWithStatus:(NSString*)status {
-    [[KGStatusBar sharedView] showWithStatus:status barColor:[UIColor blackColor] textColor:[UIColor colorWithRed:191.0/255.0 green:191.0/255.0 blue:191.0/255.0 alpha:1.0]];
++ (void)showWithStatus:(NSString*)status showSpinner:(BOOL)shouldShowSpinner{
+    [[KGStatusBar sharedView] showWithStatus:status barColor:[UIColor blackColor] textColor:[UIColor colorWithRed:191.0/255.0 green:191.0/255.0 blue:191.0/255.0 alpha:1.0] showSpinner:shouldShowSpinner];
 }
 
-+ (void)showErrorWithStatus:(NSString*)status {
-    [[KGStatusBar sharedView] showWithStatus:status barColor:[UIColor colorWithRed:97.0/255.0 green:4.0/255.0 blue:4.0/255.0 alpha:1.0] textColor:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0]];
++ (void)showErrorWithStatus:(NSString*)status showSpinner:(BOOL)shouldShowSpinner{
+    [[KGStatusBar sharedView] showWithStatus:status barColor:[UIColor colorWithRed:97.0/255.0 green:4.0/255.0 blue:4.0/255.0 alpha:1.0] textColor:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0] showSpinner:shouldShowSpinner];
     [KGStatusBar performSelector:@selector(dismiss) withObject:self afterDelay:2.0 ];
 }
 
@@ -68,30 +69,38 @@
     return self;
 }
 
-- (void)showWithStatus:(NSString *)status barColor:(UIColor*)barColor textColor:(UIColor*)textColor{
+- (void)showWithStatus:(NSString *)status barColor:(UIColor*)barColor textColor:(UIColor*)textColor showSpinner:(BOOL)shouldShowSpinner{
     if(!self.superview)
         [self.overlayWindow addSubview:self];
     [self.overlayWindow setHidden:NO];
     [self.topBar setHidden:NO];
+    
     self.topBar.backgroundColor = barColor;
+    
+    self.showActivityIndicatorView = shouldShowSpinner;
+    
     NSString *labelText = status;
-    CGRect labelRect = CGRectZero;
-    CGFloat stringWidth = 0;
-    CGFloat stringHeight = 0;
-    if(labelText) {
-        CGSize stringSize = [labelText sizeWithFont:self.stringLabel.font constrainedToSize:CGSizeMake(self.topBar.frame.size.width, self.topBar.frame.size.height)];
-        stringWidth = stringSize.width;
-        stringHeight = stringSize.height;
-        
-        labelRect = CGRectMake((self.topBar.frame.size.width / 2) - (stringWidth / 2), 0, stringWidth, stringHeight);
-    }
-    self.stringLabel.frame = labelRect;
+    
     self.stringLabel.alpha = 0.0;
     self.stringLabel.hidden = NO;
     self.stringLabel.text = labelText;
     self.stringLabel.textColor = textColor;
+    [self.stringLabel sizeToFit];
+    self.stringLabel.center = CGPointMake(self.bounds.size.width/2+7, self.stringLabel.center.y);
+    
+    if (self.showActivityIndicatorView) {
+    self.activityIndicatorView.center = CGPointMake(self.stringLabel.center.x - self.stringLabel.frame.size.width/2 - 14, self.stringLabel.center.y+1);
+    self.activityIndicatorView.alpha = 0.0;
+    [self.activityIndicatorView setHidden:NO];
+    [self.activityIndicatorView startAnimating];
+    }
+    
+    
     [UIView animateWithDuration:0.4 animations:^{
         self.stringLabel.alpha = 1.0;
+        if (self.showActivityIndicatorView) {
+        self.activityIndicatorView.alpha = 1.0;
+        }
     }];
     [self setNeedsDisplay];
 }
@@ -115,6 +124,9 @@
 =======
     [UIView animateWithDuration:TOP_BAR_DISAPPEARING_ANIMATION_DURATION animations:^{
         self.stringLabel.alpha = 0.0;
+        
+        if (self.activityIndicatorView)
+            self.activityIndicatorView.alpha = 0.0;
     } completion:^(BOOL finished) {
         
         [UIView animateWithDuration:STATUS_BAR_APPEARING_ANIMATION_DURATION animations:^{
@@ -123,6 +135,12 @@
         } completion:^(BOOL finished) {
             [topBar removeFromSuperview];
             topBar = nil;
+            
+            if (activityIndicatorView) {
+                [activityIndicatorView removeFromSuperview];
+                activityIndicatorView = nil;
+            }
+            
             
             [overlayWindow removeFromSuperview];
             overlayWindow = nil;
@@ -149,6 +167,15 @@
     return topBar;
 }
 
+- (UIActivityIndicatorView *)activityIndicatorView {
+    if(!activityIndicatorView) {
+        activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        activityIndicatorView.transform = CGAffineTransformMakeScale(0.67, 0.67);
+        [overlayWindow addSubview:activityIndicatorView];
+    }
+    return activityIndicatorView;
+}
+
 - (UILabel *)stringLabel {
     if (stringLabel == nil) {
         stringLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -164,7 +191,7 @@
 		stringLabel.font = [UIFont boldSystemFontOfSize:14.0];
 		stringLabel.shadowColor = [UIColor blackColor];
 		stringLabel.shadowOffset = CGSizeMake(0, -1);
-        stringLabel.numberOfLines = 0;
+        stringLabel.numberOfLines = 1;
     }
     
     if(!stringLabel.superview)

@@ -10,9 +10,9 @@
 
 @interface KGStatusBar : UIView
 
-+ (void)showWithStatus:(NSString*)status;
-+ (void)showErrorWithStatus:(NSString*)status;
-+ (void)showSuccessWithStatus:(NSString*)status;
++ (void)showWithStatus:(NSString*)status showSpinner:(BOOL)shouldShowSpinner;
++ (void)showErrorWithStatus:(NSString*)status showSpinner:(BOOL)shouldShowSpinner;
++ (void)showSuccessWithStatus:(NSString*)status showSpinner:(BOOL)shouldShowSpinner;
 + (void)dismiss;
 
 @end
