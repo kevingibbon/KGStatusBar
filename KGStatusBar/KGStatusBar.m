@@ -25,23 +25,23 @@
     return sharedView;
 }
 
-+ (void)showSuccessWithStatus:(NSString*)status
++ (void)showSuccessWithStatus:(NSString*)status animated:(BOOL)animated
 {
-    [KGStatusBar showWithStatus:status];
+    [KGStatusBar showWithStatus:status animated:animated];
     [KGStatusBar performSelector:@selector(dismiss) withObject:self afterDelay:2.0 ];
 }
 
-+ (void)showWithStatus:(NSString*)status {
-    [[KGStatusBar sharedView] showWithStatus:status barColor:[UIColor blackColor] textColor:[UIColor colorWithRed:191.0/255.0 green:191.0/255.0 blue:191.0/255.0 alpha:1.0]];
++ (void)showWithStatus:(NSString*)status animated:(BOOL)animated {
+    [[KGStatusBar sharedView] showWithStatus:status animated:animated barColor:[UIColor blackColor] textColor:[UIColor colorWithRed:191.0/255.0 green:191.0/255.0 blue:191.0/255.0 alpha:1.0]];
 }
 
-+ (void)showErrorWithStatus:(NSString*)status {
-    [[KGStatusBar sharedView] showWithStatus:status barColor:[UIColor colorWithRed:97.0/255.0 green:4.0/255.0 blue:4.0/255.0 alpha:1.0] textColor:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0]];
++ (void)showErrorWithStatus:(NSString*)status animated:(BOOL)animated {
+    [[KGStatusBar sharedView] showWithStatus:status animated:animated barColor:[UIColor colorWithRed:97.0/255.0 green:4.0/255.0 blue:4.0/255.0 alpha:1.0] textColor:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0]];
     [KGStatusBar performSelector:@selector(dismiss) withObject:self afterDelay:2.0 ];
 }
 
-+ (void)dismiss {
-    [[KGStatusBar sharedView] dismiss];
++ (void)dismiss:(BOOL)animated {
+    [[KGStatusBar sharedView] dismiss:animated];
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -55,7 +55,7 @@
     return self;
 }
 
-- (void)showWithStatus:(NSString *)status barColor:(UIColor*)barColor textColor:(UIColor*)textColor{
+- (void)showWithStatus:(NSString *)status animated:(BOOL)animated barColor:(UIColor*)barColor textColor:(UIColor*)textColor{
     if(!self.superview)
         [self.overlayWindow addSubview:self];
     [self.overlayWindow setHidden:NO];
@@ -73,27 +73,33 @@
         labelRect = CGRectMake((self.topBar.frame.size.width / 2) - (stringWidth / 2), 0, stringWidth, stringHeight);
     }
     self.stringLabel.frame = labelRect;
-    self.stringLabel.alpha = 0.0;
     self.stringLabel.hidden = NO;
     self.stringLabel.text = labelText;
     self.stringLabel.textColor = textColor;
-    [UIView animateWithDuration:0.4 animations:^{
-        self.stringLabel.alpha = 1.0;
-    }];
+    if (animated) {
+        self.stringLabel.alpha = 0.0;
+        [UIView animateWithDuration:0.4 animations:^{
+            self.stringLabel.alpha = 1.0;
+        }];
+    }
     [self setNeedsDisplay];
 }
 
-- (void) dismiss
+- (void) dismiss:(BOOL)animated
 {
-    [UIView animateWithDuration:0.4 animations:^{
+    if (animated) {
+        [UIView animateWithDuration:0.4 animations:^{
+            self.stringLabel.alpha = 0.0;
+        } completion:^(BOOL finished) {
+            [topBar removeFromSuperview];
+            topBar = nil;
+
+            [overlayWindow removeFromSuperview];
+            overlayWindow = nil;
+        }];
+    } else {
         self.stringLabel.alpha = 0.0;
-    } completion:^(BOOL finished) {
-        [topBar removeFromSuperview];
-        topBar = nil;
-        
-        [overlayWindow removeFromSuperview];
-        overlayWindow = nil;
-    }];
+    }
 }
 
 - (UIWindow *)overlayWindow {
