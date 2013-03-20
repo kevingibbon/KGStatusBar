@@ -8,6 +8,31 @@
 
 #import "KGStatusBar.h"
 
+CGFloat UIInterfaceOrientationAngleOfOrientation(UIInterfaceOrientation orientation) {
+    CGFloat angle;
+    switch (orientation) {
+        case UIInterfaceOrientationPortraitUpsideDown:
+            angle = M_PI;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            angle = -M_PI_2;
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            angle = M_PI_2;
+            break;
+        default:
+            angle = 0.0;
+            break;
+    }
+    return angle;
+}
+
+UIInterfaceOrientationMask UIInterfaceOrientationMaskFromOrientation(UIInterfaceOrientation orientation) {
+    return 1 << orientation;
+}
+
+
+
 @interface KGStatusBar ()
     @property (nonatomic, strong, readonly) UIWindow *overlayWindow;
     @property (nonatomic, strong, readonly) UIView *topBar;
@@ -21,7 +46,17 @@
 + (KGStatusBar*)sharedView {
     static dispatch_once_t once;
     static KGStatusBar *sharedView;
-    dispatch_once(&once, ^ { sharedView = [[KGStatusBar alloc] initWithFrame:[[UIScreen mainScreen] bounds]]; });
+    dispatch_once(&once, ^ {
+        sharedView = [[KGStatusBar alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        [[NSNotificationCenter defaultCenter] addObserver:sharedView
+                                                 selector:@selector(statusBarFrameOrOrientationChanged:)
+                                                     name:UIApplicationDidChangeStatusBarOrientationNotification
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:sharedView
+                                                 selector:@selector(statusBarFrameOrOrientationChanged:)
+                                                     name:UIApplicationDidChangeStatusBarFrameNotification
+                                                   object:nil];
+    });
     return sharedView;
 }
 
@@ -75,6 +110,7 @@
     self.stringLabel.frame = labelRect;
     self.stringLabel.alpha = 0.0;
     self.stringLabel.hidden = NO;
+    self.stringLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     self.stringLabel.text = labelText;
     self.stringLabel.textColor = textColor;
     [UIView animateWithDuration:0.4 animations:^{
@@ -137,6 +173,59 @@
         [self.topBar addSubview:stringLabel];
     
     return stringLabel;
+}
+
+
+#pragma mark - Notifications
+
+- (void)statusBarFrameOrOrientationChanged:(NSNotification *)notification {
+    UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    CGFloat angle = UIInterfaceOrientationAngleOfOrientation(statusBarOrientation);
+    CGSize statusBarSize = [UIApplication sharedApplication].statusBarFrame.size;
+    
+    CGAffineTransform transform = CGAffineTransformMakeRotation(angle);
+    CGRect frame = [self rectInWindowBounds:self.window.bounds statusBarOrientation:statusBarOrientation statusBarSize:statusBarSize];
+    
+    [self setIfNotEqualTransform:transform frame:frame];
+}
+
+- (CGRect)rectInWindowBounds:(CGRect)windowBounds statusBarOrientation:(UIInterfaceOrientation)statusBarOrientation statusBarSize:(CGSize)statusBarSize {
+    CGRect frame = windowBounds;
+    
+    switch (statusBarOrientation) {
+        case UIInterfaceOrientationPortrait:
+            frame.origin = CGPointMake(0.0, 0.0);
+            break;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            frame.origin = CGPointMake(statusBarSize.width, statusBarSize.height);
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            frame.origin = CGPointMake(0.0, 0.0);
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            frame.origin = CGPointMake(windowBounds.size.width-statusBarSize.width, 0.0);
+            break;
+        default:
+            break;
+    }
+    frame.size = statusBarSize;
+    return frame;
+}
+
+- (void)setIfNotEqualTransform:(CGAffineTransform)transform frame:(CGRect)frame {
+    
+    [UIView beginAnimations:nil context:NULL]; // prevents animation of status bar
+	[UIView setAnimationDuration:0];
+    
+    if(!CGAffineTransformEqualToTransform(self.topBar.transform, transform)) {
+        self.topBar.transform = transform;
+    }
+
+    if(!CGRectEqualToRect(self.topBar.frame, frame)) {
+        self.topBar.frame = frame;
+    }
+    
+    [UIView commitAnimations];
 }
 
 @end
