@@ -41,7 +41,7 @@
 }
 
 - (IBAction)statusButtonPressed:(id)sender {
-    [KGStatusBar showWithStatus:@"Loading..."];
+    [KGStatusBar showLoadingWithStatus:@"Loading..."];
 }
 
 - (IBAction)dismissButtonPressed:(id)sender {

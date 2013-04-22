@@ -11,6 +11,7 @@
 @interface KGStatusBar : UIView
 
 + (void)showWithStatus:(NSString*)status;
++ (void)showLoadingWithStatus:(NSString*)status;
 + (void)showErrorWithStatus:(NSString*)status;
 + (void)showSuccessWithStatus:(NSString*)status;
 + (void)dismiss;
