@@ -10,6 +10,8 @@
 
 @interface KGStatusBar : UIView
 
++ (KGStatusBar*)sharedView;
+
 + (void)showWithStatus:(NSString*)status;
 + (void)showErrorWithStatus:(NSString*)status;
 + (void)showSuccessWithStatus:(NSString*)status;
