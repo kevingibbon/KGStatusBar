@@ -40,6 +40,10 @@
     [KGStatusBar performSelector:@selector(dismiss) withObject:self afterDelay:2.0 ];
 }
 
++ (void)showWithStatus:(NSString *)status barColor:(UIColor *)barColor textColor:(UIColor *)textColor {
+    [[KGStatusBar sharedView] showWithStatus:status barColor:barColor textColor:textColor];
+}
+
 + (void)dismiss {
     [[KGStatusBar sharedView] dismiss];
 }

@@ -13,6 +13,9 @@
 + (void)showWithStatus:(NSString*)status;
 + (void)showErrorWithStatus:(NSString*)status;
 + (void)showSuccessWithStatus:(NSString*)status;
+
++ (void)showWithStatus:(NSString *)status barColor:(UIColor*)barColor textColor:(UIColor*)textColor;
+
 + (void)dismiss;
 
 @end
