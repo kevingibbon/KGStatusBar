@@ -25,6 +25,14 @@
     return sharedView;
 }
 
++ (void)setFont:(UIFont *)font {
+    [self sharedView].stringLabel.font = font;
+}
+
++ (UIFont *)font {
+    return [self sharedView].stringLabel.font;
+}
+
 + (void)showSuccessWithStatus:(NSString*)status
 {
     [KGStatusBar showWithStatus:status];

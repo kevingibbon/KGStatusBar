@@ -10,6 +10,9 @@
 
 @interface KGStatusBar : UIView
 
++ (void)setFont:(UIFont*)font;
++ (UIFont*)font;
+
 + (void)showWithStatus:(NSString*)status;
 + (void)showErrorWithStatus:(NSString*)status;
 + (void)showSuccessWithStatus:(NSString*)status;
