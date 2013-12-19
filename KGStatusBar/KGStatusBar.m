@@ -33,6 +33,22 @@
     return [self sharedView].stringLabel.font;
 }
 
++ (void)setUsingShadow:(BOOL)useShadow {
+    UILabel* stringLabel = [self sharedView].stringLabel;
+    
+    if (useShadow) {
+        stringLabel.shadowColor = [UIColor blackColor];
+        stringLabel.shadowOffset = CGSizeMake(0, -1);
+    } else {
+        stringLabel.shadowColor = [UIColor clearColor];
+        stringLabel.shadowOffset = CGSizeMake(0, 0);
+    }
+}
+
++ (BOOL)isUsingShadow {
+    return ![[self sharedView].stringLabel.shadowColor isEqual:[UIColor clearColor]];
+}
+
 + (void)showSuccessWithStatus:(NSString*)status
 {
     [KGStatusBar showWithStatus:status];
