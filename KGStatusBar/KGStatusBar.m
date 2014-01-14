@@ -8,6 +8,9 @@
 
 #import "KGStatusBar.h"
 
+static UIFont* KGStatusBarFont = nil;
+static BOOL KGStatusBarUseShadow = YES;
+
 @interface KGStatusBar ()
     @property (nonatomic, strong, readonly) UIWindow *overlayWindow;
     @property (nonatomic, strong, readonly) UIView *topBar;
@@ -21,32 +24,32 @@
 + (KGStatusBar*)sharedView {
     static dispatch_once_t once;
     static KGStatusBar *sharedView;
-    dispatch_once(&once, ^ { sharedView = [[KGStatusBar alloc] initWithFrame:[[UIScreen mainScreen] bounds]]; });
+    dispatch_once(&once, ^ {
+        sharedView = [[KGStatusBar alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        if (KGStatusBarFont == nil) {
+            KGStatusBarFont = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+        }
+    });
     return sharedView;
 }
 
 + (void)setFont:(UIFont *)font {
-    [self sharedView].stringLabel.font = font;
+    KGStatusBarFont = font;
 }
 
 + (UIFont *)font {
-    return [self sharedView].stringLabel.font;
+    if (KGStatusBarFont == nil) {
+        KGStatusBarFont = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+    }
+    return KGStatusBarFont;
 }
 
 + (void)setUsingShadow:(BOOL)useShadow {
-    UILabel* stringLabel = [self sharedView].stringLabel;
-    
-    if (useShadow) {
-        stringLabel.shadowColor = [UIColor blackColor];
-        stringLabel.shadowOffset = CGSizeMake(0, -1);
-    } else {
-        stringLabel.shadowColor = [UIColor clearColor];
-        stringLabel.shadowOffset = CGSizeMake(0, 0);
-    }
+    KGStatusBarUseShadow = useShadow;
 }
 
 + (BOOL)isUsingShadow {
-    return ![[self sharedView].stringLabel.shadowColor isEqual:[UIColor clearColor]];
+    return KGStatusBarUseShadow;
 }
 
 + (void)showSuccessWithStatus:(NSString*)status
@@ -89,6 +92,9 @@
     [self.overlayWindow setHidden:NO];
     [self.topBar setHidden:NO];
     self.topBar.backgroundColor = barColor;
+    
+    self.stringLabel.font = [self.class font];
+    
     NSString *labelText = status;
     CGRect labelRect = CGRectZero;
     CGFloat stringWidth = 0;
@@ -105,6 +111,13 @@
     self.stringLabel.hidden = NO;
     self.stringLabel.text = labelText;
     self.stringLabel.textColor = textColor;
+    if ([self.class isUsingShadow]) {
+        stringLabel.shadowColor = [UIColor blackColor];
+        stringLabel.shadowOffset = CGSizeMake(0, -1);
+    } else {
+        stringLabel.shadowColor = [UIColor clearColor];
+        stringLabel.shadowOffset = CGSizeMake(0, 0);
+    }
     [UIView animateWithDuration:0.4 animations:^{
         self.stringLabel.alpha = 1.0;
     }];
