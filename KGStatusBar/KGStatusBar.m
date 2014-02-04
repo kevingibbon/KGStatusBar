@@ -12,6 +12,7 @@
     @property (nonatomic, strong, readonly) UIWindow *overlayWindow;
     @property (nonatomic, strong, readonly) UIView *topBar;
     @property (nonatomic, strong) UILabel *stringLabel;
+    @property (nonatomic, strong) UIActivityIndicatorView *spinner;
 @end
 
 @implementation KGStatusBar
@@ -29,6 +30,12 @@
 {
     [KGStatusBar showWithStatus:status];
     [KGStatusBar performSelector:@selector(dismiss) withObject:self afterDelay:2.0 ];
+}
+
++(void)showLoadingWithStatus:(NSString *)status
+{
+    [[KGStatusBar sharedView] showWithStatus:status barColor:[UIColor blackColor] textColor:[UIColor colorWithRed:191.0/255.0 green:191.0/255.0 blue:191.0/255.0 alpha:1.0]];
+    [[KGStatusBar sharedView].spinner startAnimating];
 }
 
 + (void)showWithStatus:(NSString*)status {
@@ -55,7 +62,13 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)showWithStatus:(NSString *)status barColor:(UIColor*)barColor textColor:(UIColor*)textColor{
+    [_spinner stopAnimating];
     if(!self.superview)
         [self.overlayWindow addSubview:self];
     [self.overlayWindow setHidden:NO];
@@ -90,7 +103,8 @@
     } completion:^(BOOL finished) {
         [topBar removeFromSuperview];
         topBar = nil;
-        
+        [_spinner removeFromSuperview];
+        _spinner = nil;
         [overlayWindow removeFromSuperview];
         overlayWindow = nil;
     }];
@@ -149,6 +163,18 @@
         [self.topBar addSubview:stringLabel];
     
     return stringLabel;
+}
+
+-(UIActivityIndicatorView *)spinner
+{
+    if (_spinner == nil)
+    {
+        _spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        _spinner.center = CGPointMake(CGRectGetMinX(self.stringLabel.frame) - 25, self.stringLabel.center.y);
+        [_spinner setHidesWhenStopped:YES];
+        [self.topBar addSubview:_spinner];
+    }
+    return _spinner;
 }
 
 #pragma mark - Handle Rotation
