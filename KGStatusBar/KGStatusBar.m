@@ -69,8 +69,8 @@
         CGSize stringSize = [labelText sizeWithFont:self.stringLabel.font constrainedToSize:CGSizeMake(self.topBar.frame.size.width, self.topBar.frame.size.height)];
         stringWidth = stringSize.width;
         stringHeight = stringSize.height;
-        
-        labelRect = CGRectMake((self.topBar.frame.size.width / 2) - (stringWidth / 2), 0, stringWidth, stringHeight);
+        float labelXOffset = floorf(((self.topBar.frame.size.width - stringWidth) / 2.0f) + 0.5f);  // avoiding missaligned images
+        labelRect = CGRectMake(labelXOffset, 0, stringWidth, stringHeight);
     }
     self.stringLabel.frame = labelRect;
     self.stringLabel.alpha = 0.0;
