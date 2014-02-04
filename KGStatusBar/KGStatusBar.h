@@ -10,9 +10,9 @@
 
 @interface KGStatusBar : UIView
 
-+ (void)showWithStatus:(NSString*)status;
-+ (void)showErrorWithStatus:(NSString*)status;
-+ (void)showSuccessWithStatus:(NSString*)status;
-+ (void)dismiss;
++ (void)showWithStatus:(NSString*)status animated:(BOOL)animated;
++ (void)showErrorWithStatus:(NSString*)status animated:(BOOL)animated;
++ (void)showSuccessWithStatus:(NSString*)status animated:(BOOL)animated;
++ (void)dismiss:(BOOL)animated;
 
 @end
