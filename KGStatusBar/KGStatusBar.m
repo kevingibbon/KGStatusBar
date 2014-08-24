@@ -66,7 +66,19 @@
     CGFloat stringWidth = 0;
     CGFloat stringHeight = 0;
     if(labelText) {
-        CGSize stringSize = [labelText sizeWithFont:self.stringLabel.font constrainedToSize:CGSizeMake(self.topBar.frame.size.width, self.topBar.frame.size.height)];
+        CGSize stringSize = CGSizeZero;
+        CGSize constrainedSize = CGSizeMake(self.topBar.frame.size.width, self.topBar.frame.size.height);
+        
+        if ([labelText respondsToSelector:@selector(boundingRectWithSize:options:attributes:context:)])
+            stringSize = [labelText boundingRectWithSize:constrainedSize
+                                                 options:NSStringDrawingUsesLineFragmentOrigin
+                                              attributes:@{NSFontAttributeName:self.stringLabel.font}
+                                                 context:nil].size;
+        else
+            stringSize = [labelText sizeWithFont:self.stringLabel.font
+                               constrainedToSize:constrainedSize
+                                   lineBreakMode:UILineBreakModeWordWrap];
+        
         stringWidth = stringSize.width;
         stringHeight = stringSize.height;
         
